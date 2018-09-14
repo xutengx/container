@@ -6,12 +6,17 @@ namespace Xutengx\Container\Traits;
 use Closure;
 use ReflectionClass;
 use ReflectionParameter;
+use RuntimeException;
 use Xutengx\Container\Exception\BindingResolutionException;
 
+/**
+ * Trait Make
+ * @package Xutengx\Container\Traits
+ */
 trait Make {
 
 	/**
-	 * 构建对象
+	 * 构建抽象
 	 * @param string $abstract
 	 * @param array $parameters
 	 * @return mixed
@@ -20,6 +25,22 @@ trait Make {
 	 */
 	public function make(string $abstract, array $parameters = []) {
 		return $this->resolve($abstract, $parameters);
+	}
+
+	/**
+	 * 构建抽象, 总是缓存的对象
+	 * @param string $abstract
+	 * @return mixed
+	 * @throws BindingResolutionException
+	 * @throws \ReflectionException
+	 */
+	public function makeSingleton(string $abstract) {
+		// 存在临时绑定
+		if ($this->hasOnceConcrete($abstract))
+			throw new RuntimeException("abstract[$abstract] which has been bindOnce, can not be properly makeSingleton.");
+
+		return ($this->hasInstance($abstract) || $this->setInstance($abstract, $this->resolve($abstract))) ?
+			$this->getInstance($abstract) : null;
 	}
 
 	/**
@@ -38,8 +59,8 @@ trait Make {
 		$concrete = $this->getConcrete($abstract, $once);
 
 		// 存在接口的实现的结果, 则直接返回
-		if (!$once && isset($this->instances[$abstract])) {
-			return $this->instances[$abstract];
+		if (!$once && $singleton = $this->isSingleton($abstract) && $this->hasInstance($abstract)) {
+			return $this->getInstance($abstract);
 		}
 
 		// 记录参数
@@ -49,9 +70,9 @@ trait Make {
 		$results = $this->build($concrete);
 
 		// 需要缓存的对象 (非单次且单例, 则缓存)
-		if (!$once && ($this->bindings[$abstract]['singleton'] ?? false)) {
+		if (!$once && $this->isSingleton($abstract)) {
 			// 缓存抽象的实现
-			$this->instances[$abstract] = $results;
+			$this->setInstance($abstract, $results);
 		}
 
 		// 移除参数

@@ -3,11 +3,11 @@
 declare(strict_types = 1);
 namespace Xutengx\Container;
 
-use Xutengx\Container\Traits\{Bind, Check, Execution, Make};
+use Xutengx\Container\Traits\{Bind, Check, Execution, Instance, Make};
 
 class Container {
 
-	use Bind, Check, Execution, Make;
+	use Bind, Check, Execution, Instance, Make;
 
 	/**
 	 * 绑定信息
@@ -45,8 +45,5 @@ class Container {
 	 */
 	protected $buildStack = [];
 
-	//	public function __get(string $name) {
-	//		return $this->$name;
-	//	}
 
 }

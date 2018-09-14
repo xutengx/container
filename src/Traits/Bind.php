@@ -13,9 +13,11 @@ trait Bind {
 	 * @param string $abstract 抽象类/接口/类/自定义的标记
 	 * @param Closure|string $concrete 闭包|类名
 	 * @param bool $singleton 单例
+	 * @param bool $automation 来自于`makeSingleton`的自动化单例
 	 * @return Container
 	 */
-	public function bind(string $abstract, $concrete = null, bool $singleton = false): Container {
+	public function bind(string $abstract, $concrete = null, bool $singleton = false,
+		bool $automation = false): Container {
 		// 覆盖旧的绑定信息
 		$this->dropStaleInstances($abstract);
 
@@ -23,7 +25,7 @@ trait Bind {
 		$concrete = $concrete ?? $abstract;
 
 		// 记录绑定
-		$this->bindings[$abstract] = compact('concrete', 'singleton');
+		$this->bindings[$abstract] = compact('concrete', 'singleton', 'automation');
 
 		return $this;
 	}
@@ -32,10 +34,11 @@ trait Bind {
 	 * 单例绑定
 	 * @param string $abstract
 	 * @param Closure|string $concrete
+	 * @param bool $automation 来自于`makeSingleton`的自动化单例
 	 * @return Container
 	 */
-	public function singleton(string $abstract, $concrete = null): Container {
-		return $this->bind($abstract, $concrete, true);
+	public function singleton(string $abstract, $concrete = null, bool $automation = false): Container {
+		return $this->bind($abstract, $concrete, true, $automation);
 	}
 
 	/**
@@ -52,6 +55,35 @@ trait Bind {
 		$this->OnceBindings[$abstract] = compact('concrete');
 
 		return $this;
+	}
+
+	/**
+	 * 是否存在`bindOnce`抽象
+	 * @param string $abstract
+	 * @return bool
+	 */
+	public function hasOnceConcrete(string $abstract): bool {
+		return isset($this->OnceBindings[$abstract]);
+	}
+
+	/**
+	 * 是否存在`bind`抽象
+	 * @param string $abstract
+	 * @param bool &$singleton 是否单例绑定
+	 * @return bool
+	 */
+	public function hasConcrete(string $abstract, &$singleton = null): bool {
+		$singleton = $this->isSingleton($abstract);
+		return isset($this->bindings[$abstract]['concrete']);
+	}
+
+	/**
+	 * 抽象是否单例绑定
+	 * @param string $abstract
+	 * @return bool
+	 */
+	public function isSingleton(string $abstract): bool {
+		return $this->bindings[$abstract]['singleton'] ?? false;
 	}
 
 	/**
@@ -81,7 +113,7 @@ trait Bind {
 	 * @return Container
 	 */
 	protected function dropStaleInstances(string $abstract): Container {
-		unset($this->instances[$abstract], $this->aliases[$abstract]);
+		$this->delInstance($abstract);
 		return $this;
 	}
 
