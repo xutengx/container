@@ -93,6 +93,8 @@ trait Bind {
 	 * @return Container
 	 */
 	public function alias(string $abstract, string $alias): Container {
+		if (class_exists($abstract))
+			class_alias($abstract, $alias);
 		$this->aliases[$alias]              = $abstract;
 		$this->abstractAliases[$abstract][] = $alias;
 		return $this;

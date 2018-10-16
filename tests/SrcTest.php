@@ -152,8 +152,16 @@ final class SrcTest extends TestCase {
 		$Container->singleton(Student::class, zhang::class);
 		$this->assertInstanceOf(zhang::class, $student4 = $Container->make('a'));
 		$this->assertFalse($student4 === $student3);
+	}
 
-
+	public function testAlias2(){
+		$Container = new Container;
+		$Container->bind('aaaa', function(){
+			return ['a','re'];
+		});
+		$Container->alias('aaaa', 'aa');
+		$array = $Container->make('aa');
+		$this->assertEquals($array, ['a','re']);
 	}
 
 	public function testMakeSingleton() {
