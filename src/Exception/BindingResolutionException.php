@@ -3,8 +3,8 @@
 declare(strict_types = 1);
 namespace Xutengx\Container\Exception;
 
-use Exception;
+use RuntimeException;
 
-class BindingResolutionException extends Exception {
+class BindingResolutionException extends RuntimeException {
 
 }
