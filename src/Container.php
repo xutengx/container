@@ -3,6 +3,11 @@
 declare(strict_types = 1);
 namespace Xutengx\Container;
 
+use Closure;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionFunction;
+use Xutengx\Container\Exception\BindingResolutionException;
 use Xutengx\Container\Traits\{Bind, Check, Execution, Instance, Make};
 
 class Container {
@@ -45,5 +50,30 @@ class Container {
 	 */
 	protected $buildStack = [];
 
+	/**
+	 * 获取类的反射对象
+	 * @param string|object $class
+	 * @return ReflectionClass
+	 */
+	protected function getReflectionClass($class): ReflectionClass {
+		try {
+			return new ReflectionClass($class);
+		} catch (ReflectionException $e) {
+			throw new BindingResolutionException($e);
+		}
+	}
+
+	/**
+	 * 获取闭包的反射对象
+	 * @param Closure $Closure
+	 * @return ReflectionFunction
+	 */
+	protected function getReflectionFunction(Closure $Closure): ReflectionFunction {
+		try {
+			return new ReflectionFunction($Closure);
+		} catch (ReflectionException $e) {
+			throw new BindingResolutionException($e);
+		}
+	}
 
 }

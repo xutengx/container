@@ -6,6 +6,10 @@ namespace Xutengx\Container\Traits;
 use Closure;
 use Xutengx\Container\Container;
 
+/**
+ * Trait Bind
+ * @package Xutengx\Container\Traits
+ */
 trait Bind {
 
 	/**

@@ -6,11 +6,11 @@ namespace Xutengx\Container\Traits;
 use Closure;
 use ReflectionClass;
 use ReflectionParameter;
-use RuntimeException;
 use Xutengx\Container\Exception\BindingResolutionException;
 
 /**
  * Trait Make
+ * @method ReflectionClass getReflectionClass
  * @package Xutengx\Container\Traits
  */
 trait Make {
@@ -20,8 +20,6 @@ trait Make {
 	 * @param string $abstract
 	 * @param array $parameters
 	 * @return mixed
-	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	public function make(string $abstract, array $parameters = []) {
 		return $this->resolve($abstract, $parameters);
@@ -31,13 +29,11 @@ trait Make {
 	 * 构建抽象, 总是缓存的对象
 	 * @param string $abstract
 	 * @return mixed
-	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	public function makeSingleton(string $abstract) {
 		// 存在临时绑定
 		if ($this->hasOnceConcrete($abstract))
-			throw new RuntimeException("abstract[$abstract] which has been bindOnce, can not be properly makeSingleton.");
+			throw new BindingResolutionException("abstract[$abstract] which has been bindOnce, can not be properly makeSingleton.");
 
 		return ($this->hasInstance($abstract) || $this->setInstance($abstract, $this->resolve($abstract))) ?
 			$this->getInstance($abstract) : null;
@@ -48,8 +44,6 @@ trait Make {
 	 * @param string $abstract
 	 * @param array $parameters
 	 * @return mixed
-	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	protected function resolve(string $abstract, array $parameters = []) {
 		// 别名解析
@@ -85,8 +79,6 @@ trait Make {
 	 * 实例化给定抽象的具体实例
 	 * @param string|Closure $concrete
 	 * @return mixed
-	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	protected function build($concrete) {
 		// 是闭包, 则直接执行
@@ -95,7 +87,7 @@ trait Make {
 		}
 
 		// 反射
-		$reflector = new ReflectionClass($concrete);
+		$reflector = $this->getReflectionClass($concrete);
 
 		// 不可实例化
 		if (!$reflector->isInstantiable()) {
@@ -143,7 +135,6 @@ trait Make {
 	/**
 	 * 发出不可实例化的异常
 	 * @param string $concrete
-	 * @throws BindingResolutionException
 	 * @return void
 	 */
 	protected function notInstantiable(string $concrete): void {
@@ -161,8 +152,6 @@ trait Make {
 	 * 解决依赖
 	 * @param array $dependencies 依赖( ReflectionParameter )组成的数组
 	 * @return array 构造函数的依赖参数
-	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	protected function resolveDependencies(array $dependencies): array {
 		$results = [];
@@ -195,7 +184,6 @@ trait Make {
 	 * @param ReflectionParameter $parameter
 	 * @return mixed
 	 * @throws BindingResolutionException
-	 * @throws \ReflectionException
 	 */
 	protected function resolveClass(ReflectionParameter $parameter) {
 		try {

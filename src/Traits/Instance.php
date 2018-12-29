@@ -3,6 +3,10 @@
 declare(strict_types = 1);
 namespace Xutengx\Container\Traits;
 
+/**
+ * Trait Instance
+ * @package Xutengx\Container\Traits
+ */
 trait Instance {
 
 	/**

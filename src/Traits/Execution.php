@@ -3,12 +3,16 @@
 declare(strict_types = 1);
 namespace Xutengx\Container\Traits;
 
-use ReflectionFunction;
-use ReflectionClass;
 use Closure;
+use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * 函数执行
+ * Trait Execution
+ * @method ReflectionClass getReflectionClass
+ * @method ReflectionFunction getReflectionFunction
+ * @package Xutengx\Container\Traits
  */
 trait Execution {
 
@@ -18,7 +22,6 @@ trait Execution {
 	 * @param string $method
 	 * @param array $parameters
 	 * @return mixed
-	 * @throws \ReflectionException
 	 */
 	public function execute($object, string $method, array $parameters = []) {
 		// 统一转化为对象
@@ -28,7 +31,7 @@ trait Execution {
 		$this->with[] = $parameters;
 
 		// 反射目标
-		$reflector = new ReflectionClass($obj);
+		$reflector = $this->getReflectionClass($obj);
 
 		// 获取类的`执行函数`
 		$methodReflector = $reflector->getMethod($method);
@@ -54,14 +57,13 @@ trait Execution {
 	 * @param Closure $Closure
 	 * @param array $parameters
 	 * @return mixed
-	 * @throws \ReflectionException
 	 */
 	public function executeClosure(Closure $Closure, array $parameters = []) {
 		// 加入参数
 		$this->with[] = $parameters;
 
 		// 反射目标
-		$reflectionFunction = new ReflectionFunction($Closure);
+		$reflectionFunction = $this->getReflectionFunction($Closure);
 
 		// 获取需求参数
 		$dependencies = $reflectionFunction->getParameters();
