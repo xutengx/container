@@ -59,7 +59,7 @@ class Container {
 		try {
 			return new ReflectionClass($class);
 		} catch (ReflectionException $e) {
-			throw new BindingResolutionException($e);
+			throw new BindingResolutionException($e->getMessage(), $e->getCode(), $e);
 		}
 	}
 
@@ -72,7 +72,7 @@ class Container {
 		try {
 			return new ReflectionFunction($Closure);
 		} catch (ReflectionException $e) {
-			throw new BindingResolutionException($e);
+			throw new BindingResolutionException($e->getMessage(), $e->getCode(), $e);
 		}
 	}
 

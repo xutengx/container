@@ -197,8 +197,23 @@ final class SrcTest extends TestCase {
 
 	}
 
-}
+	public function testException(){
+		$Container = new Container;
+		$RuntimeException = false;
+		$Container->bind(\cannotnew::class, \cannotnew::class);
+		try {
+			$this->assertInstanceOf(\cannotnew::class, $student0 = $Container->make(\cannotnew::class));
+		} catch (RuntimeException $exception) {
+			$RuntimeException = true;
+		} finally {
+			$this->assertTrue($RuntimeException);
+		}
+	}
 
+}
+class cannotnew{
+	protected function __construct() { }
+}
 class person implements human {
 	public $father;
 	public $mather;
